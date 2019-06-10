@@ -4,6 +4,7 @@ RUN apk -v --update add \
         py-pip \
         groff \
         less \
+        jq \
         && \
     pip install awscli && \
     apk -v --purge del py-pip && \
