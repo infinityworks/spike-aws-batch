@@ -11,4 +11,4 @@ RUN apk -v --update add \
     rm /var/cache/apk/*
 WORKDIR /glacier
 COPY . /scripts/glacier
-ENTRYPOINT ["aws"]
+CMD ["./main.sh"]
