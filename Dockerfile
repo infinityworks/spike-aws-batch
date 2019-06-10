@@ -10,5 +10,5 @@ RUN apk -v --update add \
     apk -v --purge del py-pip && \
     rm /var/cache/apk/*
 WORKDIR /glacier
-COPY . /scripts/glacier
-CMD ["./main.sh"]
+COPY /scripts/glacier /glacier
+CMD ["sh","main.sh"]

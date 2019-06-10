@@ -9,10 +9,10 @@ aws s3api list-objects-v2 \
 
 # make the working dir and split the list of files into multiple sub-lists
 mkdir $RESTORE_BUCKET
-cd /$RESTORE_BUCKET
+cd $RESTORE_BUCKET
 split -l $RESTORE_THREADS ../list.txt
 
 for f in x*
 do
-~glacier/sub.sh $f &
+source /glacier/sub.sh $f &
 done
