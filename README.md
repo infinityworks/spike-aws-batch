@@ -12,7 +12,7 @@ docker tag spike-aws-batch:latest <AWS_REPO_URI>:latest
 docker push <AWS_REPO_URI>:latest
 ```
 
-## Local Export
+## Configuration
 
 use a tool to assume an AWS IAM Role with MFA [GITHUB remind101/assume-role](https://github.com/remind101/assume-role) for the session
 
@@ -27,7 +27,7 @@ export \
     RESTORE_DRYRUN=false
 ```
 
-## Test 
+## Pre & Dry Run 
 
 using the jq library parse/traverse the JSON response from the AWS CLI commands
 ```bash
@@ -48,7 +48,7 @@ set the ENV variable RESTORE_DRYRUN passed into docker to allow a dry run (no re
 export RESTORE_DRYRUN=true
 ```
 
-## Run
+## Execution
 execute the docker run passing in the various environment variables
 ```bash
  docker run \
