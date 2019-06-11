@@ -29,6 +29,11 @@ export \
 
 ## Test 
 
+using the jq library parse/traverse the JSON response from the AWS CLI commands
+```bash
+sudo apt-get install jq
+```
+
 Ensure the target bucket has glacier files within it
 ```bash
 aws s3api list-objects-v2 \
