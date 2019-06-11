@@ -11,10 +11,10 @@ docker build --tag=glacier-restore .
 ```bash
 assume-role iw-sandpit
 env | grep AWS_
-export RESTORE_BUCKET=spike-aws-batch RESTORE_THREADS=5 RESTORE_DAYS=1 RESTORE_TIER=Bulk
+export RESTORE_BUCKET=spike-aws-batch RESTORE_PERTHREAD=5 RESTORE_DAYS=1 RESTORE_TIER=Bulk RESTORE_DRYRUN=true
 ```
 
-## Test
+## Test 
 
 ```bash
 aws s3api list-objects-v2 \
@@ -28,10 +28,11 @@ aws s3api list-objects-v2 \
 
 ```bash
  docker run \
- -e RESTORE_BUCKET=spike-aws-batch \
- -e RESTORE_THREADS=5 \
- -e RESTORE_DAYS=1 \
- -e RESTORE_TIER=Bulk \
+ -e RESTORE_BUCKET=${RESTORE_BUCKET} \
+ -e RESTORE_PERTHREAD=${RESTORE_PERTHREAD} \
+ -e RESTORE_DAYS=${RESTORE_DAYS} \
+ -e RESTORE_TIER=${RESTORE_TIER} \
+ -e RESTORE_DRYRUN=${RESTORE_DRYRUN} \
  -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
  -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
  -e AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN} \
