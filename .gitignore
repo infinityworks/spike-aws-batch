@@ -1,1 +1,8 @@
+# test execution assets
 list.txt
+
+# dependencies
+.terraform
+local_imports/
+# misc
+.DS_Store
