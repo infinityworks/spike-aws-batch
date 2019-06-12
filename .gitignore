@@ -1,8 +1,12 @@
-# test execution assets
+# Docker: test execution assets
 list.txt
 
-# dependencies
+# Terraform: dependencies
 .terraform
 local_imports/
+
+# Packer: local assets
+site.retry
+
 # misc
 .DS_Store
