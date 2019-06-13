@@ -15,3 +15,15 @@
   with_items:
     -  jq
   become: yes
+
+- name: Create a directory to contain scripts
+  file:
+    path: ~/glacier
+    state: directory
+    mode: '0755'
+
+- name: Copy script file
+  copy:
+    src: scripts/main.sh
+    dest: ~/glacier/main.sh
+    mode: '0744'
