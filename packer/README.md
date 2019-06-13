@@ -127,5 +127,3 @@ packer build glacier-restore.json
 ```
 
 This will output the newly created AMI details to the console and push the new AMI into the account/region specified in glacier-restore.json.
-
-The retail-base-infra/variables.ft will then need the new AMI ID to be updated to ensure the glacier-restore resource in retail-base-infra/public.tf used the latest AMI.

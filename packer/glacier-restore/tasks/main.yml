@@ -1,0 +1,17 @@
+---
+
+- name: install system updates
+  yum: 
+    name: '*'
+    state: latest
+    update_cache: yes
+  become_user: root
+  become: yes
+
+- name: Install tools
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    -  jq
+  become: yes

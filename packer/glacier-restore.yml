@@ -1,0 +1,4 @@
+---
+- hosts: glacier-restore
+  roles:
+    -  glacier-restore

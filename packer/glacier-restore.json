@@ -1,0 +1,38 @@
+{
+  "variables": {
+      "aws_access_key":     "{{env `AWS_ACCESS_KEY_ID`}}",
+      "aws_secret_key":     "{{env `AWS_SECRET_ACCESS_KEY`}}",
+      "aws_security_token": "{{env `AWS_SECURITY_TOKEN`}}"
+  },
+  "builders": [
+      {
+          "type":                     "amazon-ebs",
+          "access_key":               "{{user `aws_access_key`}}",
+          "secret_key":               "{{user `aws_secret_key`}}",
+          "token":                    "{{user `aws_security_token`}}",
+          "region":                   "eu-west-1",
+          "source_ami":               "ami-0047bb1e28a00e0d1",
+          "instance_type":            "t2.micro",
+          "ssh_username":             "ec2-user",
+          "ami_name":                 "packer-base-{{timestamp}}",
+          "ami_description":          "Built using Packer on {{timestamp}}."
+      }
+  ],
+  "provisioners": [
+      {
+          "type": "shell",
+          "inline": [
+            "sudo amazon-linux-extras install ansible2"
+          ]
+      },
+      {
+        "type": "ansible-local",
+        "playbook_file": "./site.yml",
+        "inventory_file": "./local",
+        "playbook_dir": "./",
+        "extra_arguments": [
+          "--limit \"glacier-restore\" -vvv"
+        ]
+      }
+  ]
+}
