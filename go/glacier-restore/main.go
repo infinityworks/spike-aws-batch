@@ -67,6 +67,7 @@ var daysFlag = flag.Int("days", 1, "amount of time to keep restoration alive for
 var tierFlag = flag.String("tier", "Bulk", "glacier restore tier, affects cost, Bulk/Standard/Expedited. See https://aws.amazon.com/premiumsupport/knowledge-center/restore-glacier-tiers/")
 var regionFlag = flag.String("region", "eu-west-1", "the default region to use, e.g. eu-west-1")
 var bucketFlag = flag.String("bucket", "", "the glacier bucket to restore, e.g. bucket_name")
+var concurrencyFlag = flag.Int("concurrency", 4, "number of concurrent aws s3 restore requests")
 var dryRunFlag = flag.Bool("dryRun", true, "set to false to actually run the command")
 var verboseFlag = flag.Bool("verbose", true, "set verbose output")
 
@@ -82,6 +83,9 @@ func areFlagsValid() bool {
 
 func main() {
 	flag.Parse()
+	if *verboseFlag {
+		log.Printf("daysFlag: %d\n tierFlag: %s\n regionFlag: %s\n bucketFlag: %s\n concurrencyFlag: %d\n dryRunFlag: %t\n verboseFlag: %t\n", *daysFlag, *tierFlag, *regionFlag, *bucketFlag, *concurrencyFlag, *dryRunFlag, *verboseFlag)
+	}
 	if !areFlagsValid() {
 		flag.PrintDefaults()
 		os.Exit(1)
@@ -90,17 +94,21 @@ func main() {
 	ctx := context.Background()
 	keysChan := make(chan string)
 	var sg sync.WaitGroup
-	// Start 4 concurrent routines.
-	for i := 0; i < 4; i++ {
+	// Start n concurrent routines.
+	for i := 0; i < *concurrencyFlag; i++ {
 		sg.Add(1)
 		go func(channelID int) {
 			defer sg.Done()
 			for k := range keysChan {
-				err := restoreItem(ctx, *regionFlag, *bucketFlag, k, *tierFlag, int64(*daysFlag))
-				if err != nil {
-					log.Printf("error restoring %s: %v", k, err)
+				if !*dryRunFlag {
+					err := restoreItem(ctx, *regionFlag, *bucketFlag, k, *tierFlag, int64(*daysFlag))
+					if err != nil {
+						log.Printf("error restoring %s: %v", k, err)
+					}
 				}
-				log.Printf("channel %d has processed %s", channelID, k)
+				if *verboseFlag {
+					log.Printf("channel %d has processed %s", channelID, k)
+				}
 			}
 		}(i + 1)
 	}
