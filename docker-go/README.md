@@ -6,9 +6,9 @@ Build the docker image and push to the AWS ECR repo
 # log into AWS ECR for the eu-west region
 $(aws ecr get-login --no-include-email --region eu-west-1)
 # build the docker image spike-aws-batch
-docker build --tag=spike-aws-batch .
+docker build --tag=glacier-restore-go .
 # tag & push the image teh the AWS ECR repo
-docker tag spike-aws-batch:latest <AWS_REPO_URI>:latest
+docker tag glacier-restore-go:latest <AWS_REPO_URI>:latest
 docker push <AWS_REPO_URI>:latest
 ```
 
