@@ -45,5 +45,5 @@ execute the docker run passing in the various environment variables
  -e AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN} \
  -e AWS_SECURITY_TOKEN=${AWS_SECURITY_TOKEN} \
  -e ASSUMED_ROLE=${ASSUMED_ROLE} \
- -it --rm glacier-restore-go -bucket=spike-aws-batch -verbose=true -dryRun=true
+glacier-restore-go -bucket=spike-aws-batch -verbose=true -dryRun=true
  ```

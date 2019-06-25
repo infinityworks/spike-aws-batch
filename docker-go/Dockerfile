@@ -1,12 +1,5 @@
 FROM alpine:3.9.4
-RUN apk -v --update add \
-        python \
-        py-pip \
-        groff \
-        less \
-        jq \
-        && \
-    pip install awscli && \
+RUN apk -v --update \
     apk upgrade && \
         apk add --no-cache \
         ca-certificates && \
