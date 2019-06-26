@@ -1,0 +1,17 @@
+# AWS Batch
+
+## Command
+```bash
+-bucket=Ref::bucket -days=Ref::days -tier=Ref::tier -region=Ref::region -concurrency=Ref::concurrency -verbose=Ref::verbose -dryRun=Ref::dryRun
+```
+
+## Parameters
+```
+bucket=spike-aws-batch
+days=1
+tier=Bulk
+region=eu-west-1
+concurrency=4
+verbose=true
+dryRun=true
+```
