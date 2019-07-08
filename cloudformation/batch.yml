@@ -371,7 +371,7 @@
                                         "s3:GetBucketVersioning",
                                         "s3:GetBucketPolicy",
                                         "s3:GetObjectVersion"
-                                    ], 
+                                    ],
                                     "Resource": [
                                         {
                                             "Fn::Join": [
