@@ -2,7 +2,7 @@
 
 ## Command
 ```bash
--bucket=Ref::bucket -days=Ref::days -tier=Ref::tier -region=Ref::region -concurrency=Ref::concurrency -verbose=Ref::verbose -dryRun=Ref::dryRun
+-bucket Ref::bucket -days Ref::days -tier Ref::tier -region Ref::region -concurrency Ref::concurrency -verbose Ref::verbose -dryRun Ref::dryRun
 ```
 
 ## Parameters
