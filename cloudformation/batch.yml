@@ -414,7 +414,7 @@
                         "Arn"
                     ]
                 },
-                "ComputeEnvironmentName" : "spike-aws-batch-2",
+                "ComputeEnvironmentName" : "spike-aws-batch",
                 "ComputeResources" : {
                     "SpotIamFleetRole" : {
                         "Fn::GetAtt": [
@@ -422,10 +422,9 @@
                             "Arn"
                         ]
                     },
-                    "ImageId": "ami-28456852",
                     "MaxvCpus" : 128,
-                    "DesiredvCpus" : 4,
-                    "MinvCpus" : 4,
+                    "DesiredvCpus" : 0,
+                    "MinvCpus" : 0,
                     "BidPercentage" : 50,
                     "Subnets" : [
                         {
@@ -473,10 +472,12 @@
                 },
                 "ContainerProperties": {
                     "Command": [
-                        "./glacier-restore-go",
+                        "-bucket",
                         "Ref::bucket",
+                        "-verbose",
                         "Ref::verbose",
-                        "Ref::bucket"
+                        "-dryRun",
+                        "Ref::dryRun"
                     ],
                     "Memory": 4000,
                     "Privileged": false,
