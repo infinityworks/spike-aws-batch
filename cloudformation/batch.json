@@ -1,0 +1,506 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "spike-aws-batch",
+  "Parameters": {
+    "AWSRegion": {
+      "Type": "String",
+      "Description": "AWS Region to deploy this stack",
+      "Default": "eu-west-1",
+      "AllowedValues": [
+        "us-east-1",
+        "us-east-2",
+        "eu-west-1",
+        "eu-west-2"
+      ]
+    },
+    "S3Bucket": {
+      "Type": "String",
+      "Description": "S3 bucket the job needs access to",
+      "Default": ""
+    },
+    "ImageUrl": {
+      "Type": "String",
+      "Description": "URL of the task Docker image",
+      "Default": ""
+    },
+    "VpcCIDR": {
+      "Description": "Please enter the IP range (CIDR notation) for this VPC",
+      "Type": "String",
+      "Default": "10.192.0.0/16"
+    },
+    "PublicSubnetCIDR": {
+      "Description": "Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone",
+      "Type": "String",
+      "Default": "10.192.10.0/24"
+    }
+  },
+  "Resources": {
+    "VPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": {
+          "Ref": "VpcCIDR"
+        },
+        "EnableDnsSupport": true,
+        "EnableDnsHostnames": true,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "spike-aws-batch"
+          }
+        ]
+      }
+    },
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "spike-aws-batch"
+          }
+        ]
+      }
+    },
+    "InternetGatewayAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        },
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "PublicSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            "Fn::GetAZs": {
+              "Ref": "AWS::Region"
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "PublicSubnetCIDR"
+        },
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "spike-aws-batch"
+          }
+        ]
+      }
+    },
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "spike-aws-batch"
+          }
+        ]
+      }
+    },
+    "DefaultPublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "InternetGatewayAttachment",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "PublicSubnetRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnet"
+        }
+      }
+    },
+    "IAM": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "root",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "ecr:BatchCheckLayerAvailability",
+                    "ecr:BatchGetImage",
+                    "ecr:GetDownloadUrlForLayer",
+                    "ecr:GetAuthorizationToken",
+                    "ecs:CreateCluster",
+                    "ecs:DeregisterContainerInstance",
+                    "ecs:DiscoverPollEndpoint",
+                    "ecs:Poll",
+                    "ecs:RegisterContainerInstance",
+                    "ecs:StartTelemetrySession",
+                    "ecs:Submit*",
+                    "ecr:GetAuthorizationToken",
+                    "ecr:BatchCheckLayerAvailability",
+                    "ecr:GetDownloadUrlForLayer",
+                    "ecr:BatchGetImage",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ],
+        "RoleName": {
+          "Fn::Join": [
+            "-",
+            [
+              {
+                "Fn::Sub": "${AWS::StackName}"
+              },
+              "role"
+            ]
+          ]
+        }
+      }
+    },
+    "SecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Security Group for spike-aws-batch",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "spike-aws-batch"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupEgress": {
+          "CidrIp": "0.0.0.0/0",
+          "IpProtocol": -1
+        },
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "IpProtocol": "tcp",
+            "FromPort": 443,
+            "ToPort": 443
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "IpProtocol": "tcp",
+            "FromPort": 5432,
+            "ToPort": 5432
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "IpProtocol": "tcp",
+            "FromPort": 8000,
+            "ToPort": 8000
+          }
+        ]
+      }
+    },
+    "AWSBatchServiceRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "batch.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
+        ],
+        "Path": "/service-role/"
+      }
+    },
+    "AmazonEC2SpotFleetRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "spotfleet.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetRole"
+        ],
+        "Path": "/"
+      }
+    },
+    "BatchInstanceRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+        ],
+        "Path": "/"
+      }
+    },
+    "BatchInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "BatchInstanceRole"
+          }
+        ],
+        "Path": "/"
+      }
+    },
+    "BatchJobRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "batch-job-policy",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:GetBucketPolicyStatus",
+                    "s3:GetObject",
+                    "s3:GetLifecycleConfiguration",
+                    "s3:GetBucketTagging",
+                    "s3:GetObjectRetention",
+                    "s3:RestoreObject",
+                    "s3:ListBucket",
+                    "s3:GetBucketVersioning",
+                    "s3:GetBucketPolicy",
+                    "s3:GetObjectVersion"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:s3:::",
+                          {
+                            "Ref": "S3Bucket"
+                          },
+                          "/*"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:ListBucket",
+                    "s3:ListAllMyBuckets",
+                    "s3:ListJobs",
+                    "s3:CreateJob",
+                    "s3:HeadBucket"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ],
+        "Path": "/"
+      }
+    },
+    "BatchComputeEnvironment": {
+      "Type": "AWS::Batch::ComputeEnvironment",
+      "Properties": {
+        "Type": "MANAGED",
+        "ServiceRole": {
+          "Fn::GetAtt": [
+            "AWSBatchServiceRole",
+            "Arn"
+          ]
+        },
+        "ComputeEnvironmentName": "spike-aws-batch",
+        "ComputeResources": {
+          "SpotIamFleetRole": {
+            "Fn::GetAtt": [
+              "AmazonEC2SpotFleetRole",
+              "Arn"
+            ]
+          },
+          "MaxvCpus": 128,
+          "DesiredvCpus": 0,
+          "MinvCpus": 0,
+          "BidPercentage": 50,
+          "Subnets": [
+            {
+              "Ref": "PublicSubnet"
+            }
+          ],
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "SecurityGroup",
+                "GroupId"
+              ]
+            }
+          ],
+          "Type": "SPOT",
+          "InstanceRole": {
+            "Fn::GetAtt": [
+              "BatchInstanceProfile",
+              "Arn"
+            ]
+          },
+          "InstanceTypes": [
+            "c4.large",
+            "c4.xlarge"
+          ],
+          "Tags": {
+            "Name": "spike-aws-batch"
+          }
+        },
+        "State": "ENABLED"
+      }
+    },
+    "BatchJobDefinition": {
+      "Type": "AWS::Batch::JobDefinition",
+      "Properties": {
+        "Type": "container",
+        "JobDefinitionName": "aws-batch-example-task",
+        "RetryStrategy": {
+          "Attempts": 1
+        },
+        "Parameters": {
+          "bucket": "spike-aws-batch",
+          "verbose": true,
+          "dryRun": true
+        },
+        "ContainerProperties": {
+          "Command": [
+            "-bucket",
+            "Ref::bucket",
+            "-verbose",
+            "Ref::verbose",
+            "-dryRun",
+            "Ref::dryRun"
+          ],
+          "Memory": 4000,
+          "Privileged": false,
+          "JobRoleArn": {
+            "Fn::GetAtt": [
+              "BatchJobRole",
+              "Arn"
+            ]
+          },
+          "ReadonlyRootFilesystem": false,
+          "Vcpus": 2,
+          "Image": {
+            "Ref": "ImageUrl"
+          }
+        }
+      }
+    },
+    "BatchJobQueue": {
+      "Type": "AWS::Batch::JobQueue",
+      "Properties": {
+        "ComputeEnvironmentOrder": [
+          {
+            "Order": 1,
+            "ComputeEnvironment": {
+              "Ref": "BatchComputeEnvironment"
+            }
+          }
+        ],
+        "State": "ENABLED",
+        "Priority": 1,
+        "JobQueueName": "HighPriority"
+      }
+    }
+  }
+}
