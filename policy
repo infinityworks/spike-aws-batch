@@ -11,13 +11,11 @@
                 "s3:GetBucketTagging",
                 "s3:GetObjectRetention",
                 "s3:RestoreObject",
-                "s3:ListBucket",
                 "s3:GetBucketVersioning",
                 "s3:GetBucketPolicy",
                 "s3:GetObjectVersion"
             ],
             "Resource": [
-                "arn:aws:s3:::*/*",
                 "arn:aws:s3:::spike-aws-batch"
             ]
         },
@@ -25,6 +23,7 @@
             "Sid": "VisualEditor1",
             "Effect": "Allow",
             "Action": [
+                "s3:ListBucket",
                 "s3:ListAllMyBuckets",
                 "s3:ListJobs",
                 "s3:CreateJob",

@@ -4,7 +4,6 @@ RUN apk -v --update \
         apk add --no-cache \
         ca-certificates && \
         update-ca-certificates 2>/dev/null || true && \
-    apk -v --purge del py-pip && \
     rm /var/cache/apk/*
 WORKDIR /glacier
 COPY /binaries /glacier

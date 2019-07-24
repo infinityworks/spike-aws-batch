@@ -21,11 +21,11 @@ func getGlacierItems(ctx context.Context, region, bucket string, keysChan chan s
 	}))
 	svc := s3.New(sess)
 	pageHandler := func(output *s3.ListObjectsOutput, lastPage bool) (ok bool) {
-		for _, itm := range output.Contents {
-			if *itm.StorageClass != glacierClass {
+		for _, item := range output.Contents {
+			if *item.StorageClass != glacierClass {
 				continue
 			}
-			keysChan <- *itm.Key
+			keysChan <- *item.Key
 		}
 		return true
 	}

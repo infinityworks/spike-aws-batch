@@ -7,7 +7,7 @@ Build the docker image and push to the AWS ECR repo
 $(aws ecr get-login --no-include-email --region eu-west-1)
 # build the docker image spike-aws-batch
 docker build --tag=glacier-restore-go .
-# tag & push the image teh the AWS ECR repo
+# tag & push the image the the AWS ECR repo
 docker tag glacier-restore-go:latest <AWS_REPO_URI>:latest
 docker push <AWS_REPO_URI>:latest
 ```
@@ -25,7 +25,7 @@ assume-role iw-sandpit
 Ensure the target bucket has glacier files within it
 ```bash
 aws s3api list-objects-v2 \
-    --bucket $RESTORE_BUCKET \
+    --bucket spike-aws-batch \
     --query "Contents[?StorageClass=='GLACIER']" \
     --output json \
     | jq -r '.[].Key' > list.txt

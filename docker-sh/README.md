@@ -6,9 +6,9 @@ Build the docker image and push to the AWS ECR repo
 # log into AWS ECR for the eu-west region
 $(aws ecr get-login --no-include-email --region eu-west-1)
 # build the docker image spike-aws-batch
-docker build --tag=spike-aws-batch .
-# tag & push the image teh the AWS ECR repo
-docker tag spike-aws-batch:latest <AWS_REPO_URI>:latest
+docker build --tag=spike-aws-batch-sh .
+# tag & push the image to the AWS ECR repo
+docker tag spike-aws-batch-sh:latest <AWS_REPO_URI>:latest
 docker push <AWS_REPO_URI>:latest
 ```
 
@@ -43,7 +43,7 @@ aws s3api list-objects-v2 \
     | jq -r '.[].Key' > list.txt
 ```
 
-set the ENV variable RESTORE_DRYRUN passed into docker to allow a dry run (no resore requests just output the commands it would have run)
+set the ENV variable RESTORE_DRYRUN passed into docker to allow a dry run (no restore requests just output the commands it would have run)
 ```bash
 export RESTORE_DRYRUN=true
 ```
