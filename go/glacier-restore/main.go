@@ -68,8 +68,8 @@ var tierFlag = flag.String("tier", "Bulk", "glacier restore tier, affects cost, 
 var regionFlag = flag.String("region", "eu-west-1", "the default region to use, e.g. eu-west-1")
 var bucketFlag = flag.String("bucket", "", "the glacier bucket to restore, e.g. bucket_name")
 var concurrencyFlag = flag.Int("concurrency", 4, "number of concurrent aws s3 restore requests")
-var dryRunFlag = flag.Bool("dryRun", true, "set to false to actually run the command")
-var verboseFlag = flag.Bool("verbose", true, "set verbose output")
+var dryRunFlag = flag.Bool("dryRun", false, "passed to enable a dryrun")
+var quietFlag = flag.Bool("quiet", false, "passed to reduce logging output")
 
 func areFlagsValid() bool {
 	if *bucketFlag == "" {
@@ -83,8 +83,8 @@ func areFlagsValid() bool {
 
 func main() {
 	flag.Parse()
-	if *verboseFlag {
-		log.Printf("daysFlag: %d\n tierFlag: %s\n regionFlag: %s\n bucketFlag: %s\n concurrencyFlag: %d\n dryRunFlag: %t\n verboseFlag: %t\n", *daysFlag, *tierFlag, *regionFlag, *bucketFlag, *concurrencyFlag, *dryRunFlag, *verboseFlag)
+	if !*quietFlag {
+		log.Printf("daysFlag: %d\n tierFlag: %s\n regionFlag: %s\n bucketFlag: %s\n concurrencyFlag: %d\n dryRunFlag: %t\n quietFlag: %t\n", *daysFlag, *tierFlag, *regionFlag, *bucketFlag, *concurrencyFlag, *dryRunFlag, *quietFlag)
 	}
 	if !areFlagsValid() {
 		flag.PrintDefaults()
@@ -106,7 +106,7 @@ func main() {
 						log.Printf("error restoring %s: %v", k, err)
 					}
 				}
-				if *verboseFlag {
+				if !*quietFlag {
 					log.Printf("channel %d has processed %s", channelID, k)
 				}
 			}

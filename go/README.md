@@ -7,7 +7,7 @@ A utility to make AWS S3 Glacier restore requests for all glaciered objects with
 test from code with with verbose & dry run enabled.
 
 ```bash
-go run main.go -bucket=spike-aws-batch -verbose=true -dryRun=true
+go run main.go -bucket=spike-aws-batch -dryRun
 ```
 
 ## Build 
@@ -15,13 +15,13 @@ go run main.go -bucket=spike-aws-batch -verbose=true -dryRun=true
 disabling cgo which gives us a static binary, compiling for linux.
 
 ```bash
-CGO_ENABLED=0 go build GOOS=linux go build
+CGO_ENABLED=0 GOOS=linux go build
 ```
  
 ## Run
-execute with verbose & dry run enabled.
+execute with dry run enabled.
 
 
 ```bash
-./glacier-restore -bucket=spike-aws-batch -verbose=true -dryRun=true
+./glacier-restore -bucket spike-aws-batch -dryRun
 ```

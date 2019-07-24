@@ -456,19 +456,10 @@
         "RetryStrategy": {
           "Attempts": 1
         },
-        "Parameters": {
-          "bucket": "spike-aws-batch",
-          "verbose": true,
-          "dryRun": true
-        },
         "ContainerProperties": {
           "Command": [
             "-bucket",
-            "Ref::bucket",
-            "-verbose",
-            "Ref::verbose",
-            "-dryRun",
-            "Ref::dryRun"
+            "Ref::bucket"
           ],
           "Memory": 4000,
           "Privileged": false,
