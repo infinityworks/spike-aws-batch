@@ -1,13 +1,6 @@
 # Docker: test execution assets
 list.txt
 
-# Terraform: dependencies
-.terraform
-local_imports/
-
-# Packer: local assets
-site.retry
-
 # golang
 glacier-restore
 
