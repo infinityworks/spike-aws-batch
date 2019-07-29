@@ -20,8 +20,8 @@ func getGlacierItems(ctx context.Context, region, bucket string, keysChan chan s
 		Region: aws.String(region),
 	}))
 	svc := s3.New(sess)
-	pageHandler := func(output *s3.ListObjectsOutput, lastPage bool) (ok bool) {
-		for _, item := range output.Contents {
+	pageHandler := func(s3objects *s3.ListObjectsOutput, lastPage bool) (ok bool) {
+		for _, item := range s3objects.Contents {
 			if *item.StorageClass != glacierClass {
 				continue
 			}
@@ -84,7 +84,13 @@ func areFlagsValid() bool {
 func main() {
 	flag.Parse()
 	if !*quietFlag {
-		log.Printf("daysFlag: %d\n tierFlag: %s\n regionFlag: %s\n bucketFlag: %s\n concurrencyFlag: %d\n dryRunFlag: %t\n quietFlag: %t\n", *daysFlag, *tierFlag, *regionFlag, *bucketFlag, *concurrencyFlag, *dryRunFlag, *quietFlag)
+    log.Printf("daysFlag: %d\n", *daysFlag);
+    log.Printf("tierFlag: %s\n", *tierFlag)
+    log.Printf("regionFlag: %s\n", *regionFlag)
+    log.Printf("bucketFlag: %s\n", *bucketFlag)
+    log.Printf("concurrencyFlag: %d\n", *concurrencyFlag)
+    log.Printf("dryRunFlag: %t\n", *dryRunFlag)
+    log.Printf("quietFlag: %t\n", *quietFlag)
 	}
 	if !areFlagsValid() {
 		flag.PrintDefaults()
