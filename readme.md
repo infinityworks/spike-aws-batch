@@ -16,8 +16,8 @@ A Golang application that accepts:
 
 ## runtime
 
-A Alpine Linux Docker with the compiled Golang application embedded as the Entrypoint
+An Alpine Linux Docker with the compiled Golang application embedded as the Entrypoint
 
 ## infrastructure
 
-A JSON CLoudFormation template to stand-up the AWS Batch resouurces andother supporting/required AWS resources
+A JSON CloudFormation template to stand up the AWS Batch resources and other to start the supporting/required AWS resources.
