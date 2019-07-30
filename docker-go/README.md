@@ -1,6 +1,7 @@
 # Usage
 
 ## Build
+
 Build the docker image and push to the AWS ECR repo
 ```bash
 # log into AWS ECR for the eu-west region
@@ -32,6 +33,7 @@ aws s3api list-objects-v2 \
 ```
 
 ## Execution
+
 execute the docker run passing in the various environment variables
 ```bash
  docker run \
